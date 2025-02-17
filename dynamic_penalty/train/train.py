@@ -1,4 +1,4 @@
-from ..data_prep.prep import get_gsm8k_questions
+from ..data.prep import get_gsm8k_questions
 from ..reward.reward import (
     xmlcount_reward_func,
     soft_format_reward_func,
@@ -7,7 +7,9 @@ from ..reward.reward import (
     correctness_reward_func,
 )
 from unsloth import FastLanguageModel, PatchFastRL
-import torch
+from .param import training_args
+from trl import GRPOTrainer
+# import torch
 
 PatchFastRL("GRPO", FastLanguageModel)
 

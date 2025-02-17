@@ -1,4 +1,4 @@
-from trl import GRPOConfig, GRPOTrainer
+from trl import GRPOConfig
 from unsloth import is_bfloat16_supported
 
 training_args = GRPOConfig(
