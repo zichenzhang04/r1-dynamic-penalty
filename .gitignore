@@ -1,3 +1,8 @@
+# Project-specific
+unsloth_compiled_cache/
+wandb/
+grpo_trainer_lora_model/
+
 # Byte-compiled / optimized / DLL files
 *__pycache__*
 *.py[cod]

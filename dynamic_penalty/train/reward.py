@@ -1,4 +1,4 @@
-from ..data.prep import extract_xml_answer
+from dynamic_penalty.data.gsm8k import extract_xml_answer
 import re
 
 def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[float]:

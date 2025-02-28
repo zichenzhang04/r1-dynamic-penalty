@@ -32,6 +32,7 @@ def extract_hash_answer(text: str) -> str | None:
 
 # uncomment middle messages for 1-shot prompting
 def get_gsm8k_questions(split = "train") -> Dataset:
+    # Auto-saved to ~/.cache/huggingface/datasets/
     data = load_dataset('openai/gsm8k', 'main')[split] # type: ignore
     data = data.map(lambda x: { # type: ignore
         'prompt': [
