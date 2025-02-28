@@ -4,6 +4,7 @@ import argparse
 import re
 # import torch
 import wandb
+import os
 
 from dynamic_penalty.data.gsm8k import get_gsm8k_questions
 from dynamic_penalty.train.reward import (
@@ -16,10 +17,13 @@ from dynamic_penalty.train.reward import (
 from dynamic_penalty.train.param import training_args
 
 
+# Set up Hugging Face environment for Great Lakes
+os.environ["HF_HOME"] = "/scratch/cse598s012w25_class_root/cse598s012w25_class/dynamic_reward_proj/hf"
+
+
 def train(args):
     # Set up Weights & Biases logging
-    project_name = f"test_{args.model_name}"
-    project_name = re.sub(r"[\/\\#\?,%:]", "_", project_name)  # Replace invalid characters with "_"
+    project_name = re.sub(r"[\/\\#\?,%:]", "_", args.project_name)  # Replace invalid characters with "_"
     wandb.init(project=project_name)
 
     PatchFastRL("GRPO", FastLanguageModel)
@@ -65,10 +69,12 @@ def train(args):
     )
 
     trainer.train()
+    model.save_lora("grpo_saved_lora")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
+    parser.add_argument("--project_name", type=str, default="dyreward_default_Qwen2.5-3B-Instruct")
     args = parser.parse_args()
     train(args)
