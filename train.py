@@ -75,6 +75,6 @@ def train(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
-    parser.add_argument("--project_name", type=str, default="dyreward_default_Qwen2.5-3B-Instruct")
+    parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     args = parser.parse_args()
     train(args)
