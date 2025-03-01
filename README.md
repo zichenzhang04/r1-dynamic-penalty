@@ -4,7 +4,10 @@
 
 ### Initialize the Environment
 
-If running on Great Lakes, make sure you have loaded `Python` version 3.11
+If running on `Great Lakes`, make sure you have loaded `Python` version 3.11. For example,
+```Shell
+module load python3.11-anaconda/2024.02
+```
 
 Then, activate conda:
 ```Shell
