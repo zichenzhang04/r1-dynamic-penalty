@@ -24,7 +24,7 @@ os.environ["HF_HOME"] = "/scratch/cse598s012w25_class_root/cse598s012w25_class/d
 def train(args):
     # Set up Weights & Biases logging
     project_name = re.sub(r"[\/\\#\?,%:]", "_", args.project_name)  # Replace invalid characters with "_"
-    wandb.init(project=project_name)
+    wandb.init(project=project_name, name=args.run_name)
 
     PatchFastRL("GRPO", FastLanguageModel)
 
@@ -76,5 +76,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
+    parser.add_argument("--run_name", type=str, default="normal_reward")
     args = parser.parse_args()
     train(args)
