@@ -9,7 +9,7 @@ If running on Great Lakes, make sure you have loaded `Python` version 3.11
 Then, activate conda:
 ```Shell
 conda env create -f environment.yml
-conda activate dynamic-penalty
+conda activate dynamic_penalty
 ```
 
 Use `pip` in conda to install additional dependencies:
