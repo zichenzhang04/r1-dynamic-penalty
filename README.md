@@ -17,5 +17,10 @@ Use `pip` in conda to install additional dependencies:
 pip install -r requirements.txt
 ```
 
+There's some bug in the stable version of unsloth-zoo, making it fail to work on V100. Please install the newest version from source to fix this issue:
+```Shell
+pip install --force-reinstall --no-deps --no-cache-dir git+https://github.com/unslothai/unsloth-zoo.git
+```
+
 ## Documentations
 Google doc: https://docs.google.com/document/d/1artwHjWP9XIchUnj2lUcb-06TveEp_3qNH-j8gaT_fc/edit?tab=t.0
