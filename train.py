@@ -65,7 +65,9 @@ def train(args):
             soft_format_reward_func,
             strict_format_reward_func,
             int_reward_func,
-            cosine_reward_func, # Replace correctness_reward_func
+            lambda prompts, completions, answer, **kwargs: cosine_reward_func(
+                prompts, completions, answer, tokenizer=tokenizer, **kwargs
+            ), # Replace correctness_reward_func
         ]
     else:
         print(f"Invalid reward type: {args.reward_type}")

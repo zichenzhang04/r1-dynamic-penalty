@@ -25,10 +25,10 @@ class CosineScaledSparseReward:
         self.exceed_length = exceed_length
         self.repetition_max_penalty = repetition_max_penalty
         self.repetition_ngram_size = repetition_ngram_size
-        self.MAX_LEN_MARGIN = 20 # TODO: adjust this
+        self.MAX_LEN_MARGIN = 16 # TODO: adjust this
 
     def get_repetition_penalty(self, text: str) -> float:
-        words = text.split()
+        words = text.lower().split()
         ngrams = set()
         penalty = 0.0
         for i in range(len(words) - self.repetition_ngram_size + 1):
@@ -69,10 +69,10 @@ class CosineScaledSparseReward:
                 rep_penalty = self.get_repetition_penalty(seq)
 
             progress = length / self.max_len
+            assert 0 <= progress <= 1, "Cosine Reward Error: length / self.max_len should be in [0, 1]"
             cos_part = math.cos(progress * math.pi)
             r = min_value + 0.5 * (max_value - min_value) * (1.0 + cos_part)
             r += rep_penalty
             rewards.append(r)
 
         return rewards
-    
