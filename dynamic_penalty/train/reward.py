@@ -2,7 +2,7 @@
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
-from dynamic_penalty.train.metric import count_reasoning_words, count_aha_words
+from dynamic_penalty.train.metric import *
 from dynamic_penalty.train.utils import *
 import re
 import wandb
@@ -14,13 +14,7 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
     wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
-    
-    # calculate the average number of each aha word across the responses
-    aha_words = ['wait', 'recheck', 'alternatively', 'retry', 'however']
-    cnt_dict = count_aha_words(responses, aha_words=aha_words)
-    for aha_word in aha_words:
-        wandb.log({f"train/cnt_'{aha_word}'": cnt_dict[aha_word]})
-    wandb.log({"train/cnt_all_aha_words": cnt_dict['cnt_all_aha_words']})
+    log_aha_words(responses)
     return [2.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]
 
 
@@ -33,7 +27,7 @@ def int_reward_func(completions, **kwargs) -> list[float]:
     nums_reasoning_words = [count_reasoning_words(r) for r in responses]
     wandb.log({"train/reasoning_length": average_nonzero(nums_reasoning_words)})
 
-    return [1.0 if r.isdigit() else -2.0 for r in extracted_responses]
+    return [0.5 if r.isdigit() else -10.0 for r in extracted_responses]
 
 
 def strict_format_reward_func(completions, **kwargs) -> list[float]:
@@ -41,7 +35,6 @@ def strict_format_reward_func(completions, **kwargs) -> list[float]:
     The string must start (^) and end ($) exactly with the expected format.
     Each <reasoning> and <answer> section must be on its own line.
     Newlines (\n) are explicitly required between tags.
-    Any deviation (e.g., missing newlines, extra spaces) will result in a 0.0 reward.
     """
     pattern = r"^<reasoning>\n.*?\n</reasoning>\n<answer>\n.*?\n</answer>\n$"
     responses = [completion[0]["content"] for completion in completions]
@@ -55,7 +48,6 @@ def soft_format_reward_func(completions, **kwargs) -> list[float]:
     There can be arbitrary text in between (.*?).
     The tags don’t need to be on separate lines.
     Any amount of whitespace (\s*) is allowed between the </reasoning> and <answer>.
-    Minor formatting variations (e.g., extra spaces or missing newlines) will still get a 0.5 reward.
     """
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     responses = [completion[0]["content"] for completion in completions]
@@ -101,6 +93,7 @@ def cosine_reward_func(
     **kwargs
 ) -> list[float]:
     responses = [completion[0]['content'] for completion in completions]
+    log_aha_words(responses)
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
@@ -127,7 +120,7 @@ def cosine_reward_func(
         scores=scores
     )
 
-    wandb.log({"train/repetition_penalty": sum(rep_penalties) / len(rep_penalties)})
+    wandb.log({"train/repetition_penalty": average_nonzero(rep_penalties)})
 
     return rewards
 

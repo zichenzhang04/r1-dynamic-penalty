@@ -1,5 +1,7 @@
 import re
 from dynamic_penalty.data.gsm8k import extract_xml_answer
+import wandb
+
 
 def count_reasoning_words(text):
     """Extract text inside <reasoning>...</reasoning> and count words."""
@@ -11,6 +13,7 @@ def count_reasoning_words(text):
         word_count = 0  # No reasoning tag found
 
     return word_count
+
 
 def count_aha_words(responses, aha_words=['wait', 'recheck', 'alternatively', 'retry', 'however']):
     """Count the frequency of each aha words. responses should be a list containing multiple texts"""
@@ -25,8 +28,17 @@ def count_aha_words(responses, aha_words=['wait', 'recheck', 'alternatively', 'r
             cnt_dict['cnt_all_aha_words'] += num_aha_word
     for key in cnt_dict.keys():
         cnt_dict[key] /= num_texts
-        
+
     return cnt_dict
+
+
+def log_aha_words(responses):
+    # Calculate the average number of each aha word across the responses
+    aha_words = ['wait', 'recheck', 'alternatively', 'retry', 'however']
+    cnt_dict = count_aha_words(responses, aha_words=aha_words)
+    for aha_word in aha_words:
+        wandb.log({f"train/cnt_'{aha_word}'": cnt_dict[aha_word]})
+    wandb.log({"train/cnt_all_aha_words": cnt_dict['cnt_all_aha_words']})
 
 # def training_accuracy(responses, answer):
 #     extracted_responses = [extract_xml_answer(r) for r in responses]
