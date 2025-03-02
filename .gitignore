@@ -2,6 +2,7 @@
 unsloth_compiled_cache/
 wandb/
 grpo_trainer_lora_model/
+gl_slurm_scripts/
 
 # Byte-compiled / optimized / DLL files
 *__pycache__*

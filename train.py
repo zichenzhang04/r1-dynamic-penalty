@@ -2,18 +2,11 @@ from unsloth import FastLanguageModel, PatchFastRL
 from trl import GRPOTrainer
 import argparse
 import re
-# import torch
 import wandb
 import os
 
 from dynamic_penalty.data.gsm8k import get_gsm8k_questions
-from dynamic_penalty.train.reward import (
-    xmlcount_reward_func,
-    soft_format_reward_func,
-    strict_format_reward_func,
-    int_reward_func,
-    correctness_reward_func,
-)
+from dynamic_penalty.train.reward import *
 from dynamic_penalty.train.param import training_args
 
 
@@ -57,16 +50,31 @@ def train(args):
         random_state = 3407,
     )
 
-    trainer = GRPOTrainer(
-        model = model,
-        processing_class = tokenizer,
+    reward_funcs = []
+    if args.reward_type == "normal":
         reward_funcs = [
             xmlcount_reward_func,
             soft_format_reward_func,
             strict_format_reward_func,
             int_reward_func,
             correctness_reward_func,
-        ],
+        ]
+    elif args.reward_type == "cosine":
+        reward_funcs = [
+            xmlcount_reward_func,
+            soft_format_reward_func,
+            strict_format_reward_func,
+            int_reward_func,
+            cosine_reward_func, # Replace correctness_reward_func
+        ]
+    else:
+        print(f"Invalid reward type: {args.reward_type}")
+        return
+
+    trainer = GRPOTrainer(
+        model = model,
+        processing_class = tokenizer,
+        reward_funcs = reward_funcs,
         args = training_args,
         train_dataset = dataset,
     )
@@ -84,5 +92,6 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     parser.add_argument("--run_name", type=str, default="normal_reward")
+    parser.add_argument("--reward_type", type=str, default="normal")
     args = parser.parse_args()
     train(args)
