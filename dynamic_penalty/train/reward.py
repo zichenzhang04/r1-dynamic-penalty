@@ -18,7 +18,7 @@ def int_reward_func(completions, **kwargs) -> list[float]:
     """Reward function that checks if the completion is an integer."""
     responses = [completion[0]['content'] for completion in completions]
     extracted_responses = [extract_xml_answer(r) for r in responses]
-    return [0.5 if r.isdigit() else 0.0 for r in extracted_responses]
+    return [1.0 if r.isdigit() else -1.0 for r in extracted_responses]
 
 
 def strict_format_reward_func(completions, **kwargs) -> list[float]:
@@ -31,7 +31,7 @@ def strict_format_reward_func(completions, **kwargs) -> list[float]:
     pattern = r"^<reasoning>\n.*?\n</reasoning>\n<answer>\n.*?\n</answer>\n$"
     responses = [completion[0]["content"] for completion in completions]
     matches = [re.match(pattern, r) for r in responses]
-    return [0.5 if match else 0.0 for match in matches]
+    return [1.0 if match else 0.0 for match in matches]
 
 
 def soft_format_reward_func(completions, **kwargs) -> list[float]:
@@ -44,8 +44,8 @@ def soft_format_reward_func(completions, **kwargs) -> list[float]:
     """
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     responses = [completion[0]["content"] for completion in completions]
-    matches = [re.match(pattern, r) for r in responses]
-    return [0.5 if match else 0.0 for match in matches]
+    matches = [re.search(pattern, r) for r in responses]
+    return [1.0 if match else -1.0 for match in matches]
 
 
 def count_xml(text) -> float:

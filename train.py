@@ -1,5 +1,5 @@
-from unsloth import FastLanguageModel, PatchFastRL
-from trl import GRPOTrainer
+from unsloth import FastLanguageModel, PatchFastRL, is_bfloat16_supported
+from trl import GRPOTrainer, GRPOConfig
 import argparse
 import re
 import wandb
@@ -7,7 +7,6 @@ import os
 
 from dynamic_penalty.data.gsm8k import get_gsm8k_questions
 from dynamic_penalty.train.reward import *
-from dynamic_penalty.train.param import training_args
 
 
 # Set up Hugging Face environment for Great Lakes
@@ -73,6 +72,34 @@ def train(args):
         print(f"Invalid reward type: {args.reward_type}")
         return
 
+    training_args = GRPOConfig(
+        use_vllm = True, # use vLLM for fast inference!
+        learning_rate = 5e-6,
+        adam_beta1 = 0.9,
+        adam_beta2 = 0.99,
+        weight_decay = 0.1,
+        warmup_ratio = 0.1,
+        lr_scheduler_type = "cosine",
+        optim = "adamw_8bit",
+        logging_steps = 1,
+        bf16 = is_bfloat16_supported(),
+        fp16 = not is_bfloat16_supported(),
+        per_device_train_batch_size = 1,
+        gradient_accumulation_steps = 4, # Increase to 4 for smoother training
+        num_generations = 8, # Decrease if out of memory
+        max_prompt_length = 1024, # original: 256
+        max_completion_length = 1024, # original: 200
+        # num_train_epochs = 1, # Set to 1 for a full training run
+        max_steps = 500, # Adjust this
+        save_steps = 150, # Save checkpoint #150, #300, #450
+        max_grad_norm = 0.1,
+        report_to = "wandb", # Use Weights & Biases
+        output_dir = (
+            f"/scratch/cse598s012w25_class_root/cse598s012w25_class/"
+            f"dynamic_reward_proj/hf/checkpoints/{args.project_name}_{args.run_name}_checkpoints/"
+        ),
+    )
+
     trainer = GRPOTrainer(
         model = model,
         processing_class = tokenizer,
@@ -82,6 +109,7 @@ def train(args):
     )
 
     trainer.train()
+
     saved_model_path = (
         f"/scratch/cse598s012w25_class_root/cse598s012w25_class/"
         f"dynamic_reward_proj/hf/saved_models/{args.model_name}_{args.run_name}"
