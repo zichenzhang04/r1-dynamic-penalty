@@ -14,7 +14,7 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     q = prompts[0][-1]['content']
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    wandb.log({"training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+    wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
     return [2.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]
 
 
@@ -25,7 +25,7 @@ def int_reward_func(completions, **kwargs) -> list[float]:
 
     # Log reasoning word count
     nums_reasoning_words = [count_reasoning_words(r) for r in responses]
-    wandb.log({"reasoning_length": sum(nums_reasoning_words) / len(nums_reasoning_words)})
+    wandb.log({"train/reasoning_length": sum(nums_reasoning_words) / len(nums_reasoning_words)})
 
     return [1.0 if r.isdigit() else -2.0 for r in extracted_responses]
 
@@ -98,7 +98,7 @@ def cosine_reward_func(
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    wandb.log({"training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+    wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
 
     scores = [1.0 if er == ans else 0.0 for er, ans in zip(extracted_responses, answer)]
     # Use number of tokens instead of naive number of words
@@ -121,7 +121,7 @@ def cosine_reward_func(
         scores=scores
     )
 
-    wandb.log({"repetition_penalty": sum(rep_penalties) / len(rep_penalties)})
+    wandb.log({"train/repetition_penalty": sum(rep_penalties) / len(rep_penalties)})
 
     return rewards
 
