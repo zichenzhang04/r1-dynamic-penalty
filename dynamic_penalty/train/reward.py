@@ -79,7 +79,7 @@ def cosine_reward_func(
     max_value_wrong: float = 0.0,
     min_value_correct: float = 0.0,
     max_value_correct: float = 2.0,
-    max_len: int = 200,
+    max_len: int = 1024,
     exceed_length: float = 0.0,
     repetition_max_penalty: float = -1.0, # Adjust this
     repetition_ngram_size: int = 20, # Adjust this
