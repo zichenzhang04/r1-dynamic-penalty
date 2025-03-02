@@ -78,7 +78,7 @@ def cosine_reward_func(
     max_value_wrong: float = 0.0,
     min_value_correct: float = 0.0,
     max_value_correct: float = 2.0,
-    max_len: int = 256,
+    max_len: int = 200,
     exceed_length: float = -2.0,
     repetition_max_penalty: float = -1.0,
     repetition_ngram_size: int = 3,
@@ -90,6 +90,7 @@ def cosine_reward_func(
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
 
     scores = [1.0 if er == ans else 0.0 for er, ans in zip(extracted_responses, answer)]
+    # TODO: check whether should base this on tokens?
     gen_lengths = [len(r.split()) for r in responses]
 
     cos_reward = CosineScaledSparseReward(
