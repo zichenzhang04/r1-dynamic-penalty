@@ -18,7 +18,10 @@ from dynamic_penalty.train.param import training_args
 
 
 # Set up Hugging Face environment for Great Lakes
-os.environ["HF_HOME"] = "/scratch/cse598s012w25_class_root/cse598s012w25_class/dynamic_reward_proj/hf"
+os.environ["HF_HOME"] = (
+    "/scratch/cse598s012w25_class_root/"
+    "cse598s012w25_class/dynamic_reward_proj/hf"
+)
 
 
 def train(args):
@@ -69,7 +72,11 @@ def train(args):
     )
 
     trainer.train()
-    model.save_lora("grpo_saved_lora")
+    saved_model_path = (
+        f"/scratch/cse598s012w25_class_root/cse598s012w25_class/"
+        f"dynamic_reward_proj/hf/saved_models/{args.model_name}_{args.run_name}"
+    )
+    model.save_lora(saved_model_path)
 
 
 if __name__ == "__main__":
