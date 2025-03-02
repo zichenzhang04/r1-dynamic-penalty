@@ -58,23 +58,28 @@ class CosineScaledSparseReward:
         for seq, length, score in zip(sequences, gen_lengths, scores):
             if length + self.MAX_LEN_MARGIN >= self.max_len:
                 rewards.append(self.exceed_length)
+                # rep_penalties.append(0)
                 continue
 
-            if score >= 1.0:
-                min_value = self.min_value_correct
-                max_value = self.max_value_correct
+            if score >= 1.0: # Correct
+                min_value = self.max_value_correct # 1
+                max_value = self.min_value_correct # 2
                 rep_penalty = 0
-            else:
-                min_value = self.max_value_wrong
-                max_value = self.min_value_wrong
+            else: # Wrong
+                min_value = self.max_value_wrong # 0
+                max_value = self.min_value_wrong # -10
                 rep_penalty = self.get_repetition_penalty(seq)
+                if rep_penalty != 0:
+                    rep_penalties.append(rep_penalty)
 
             progress = length / self.max_len
             assert 0 <= progress <= 1, "Cosine Reward Error: length / self.max_len should be in [0, 1]"
-            cos_part = math.cos(progress * math.pi)
-            r = min_value + 0.5 * (max_value - min_value) * (1.0 + cos_part)
+            r = compute_cosine(min_value, max_value, progress)
             r += rep_penalty
             rewards.append(r)
-            rep_penalties.append(rep_penalty)
 
         return rewards, rep_penalties
+
+
+def compute_cosine(min_value, max_value, progress):
+    return min_value + 0.5 * (max_value - min_value) * (1.0 + math.cos(progress * math.pi))

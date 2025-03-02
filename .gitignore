@@ -3,6 +3,7 @@ unsloth_compiled_cache/
 wandb/
 grpo_trainer_lora_model/
 gl_slurm_scripts/
+test_cosine.py
 *.out*
 
 # Byte-compiled / optimized / DLL files

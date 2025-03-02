@@ -31,7 +31,7 @@ def int_reward_func(completions, **kwargs) -> list[float]:
 
     # Log reasoning word count
     nums_reasoning_words = [count_reasoning_words(r) for r in responses]
-    wandb.log({"train/reasoning_length": sum(nums_reasoning_words) / len(nums_reasoning_words)})
+    wandb.log({"train/reasoning_length": average_nonzero(nums_reasoning_words)})
 
     return [1.0 if r.isdigit() else -2.0 for r in extracted_responses]
 
@@ -90,12 +90,12 @@ def cosine_reward_func(
     answer,
     tokenizer,
     # CosineScaledSparseReward hyperparameters:
-    min_value_wrong: float = -2.0,
+    min_value_wrong: float = -10.0,
     max_value_wrong: float = 0.0,
-    min_value_correct: float = 0.0,
-    max_value_correct: float = 2.0,
+    min_value_correct: float = 2.0,
+    max_value_correct: float = 1.0,
     max_len: int = 1024,
-    exceed_length: float = 0.0,
+    exceed_length: float = -10.0,
     repetition_max_penalty: float = -1.0, # Adjust this
     repetition_ngram_size: int = 20, # Adjust this
     **kwargs
