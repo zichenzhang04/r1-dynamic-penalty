@@ -120,7 +120,7 @@ def cosine_reward_func(
         scores=scores
     )
 
-    wandb.log({"train/repetition_penalty": sum(rep_penalties) / len(rep_penalties)})
+    wandb.log({"train/repetition_penalty": average_nonzero(rep_penalties)})
 
     return rewards
 
