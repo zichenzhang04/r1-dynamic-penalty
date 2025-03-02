@@ -2,11 +2,10 @@
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
-from dynamic_penalty.train.metric import count_reasoning_words
+from dynamic_penalty.train.metric import count_reasoning_words, count_aha_words
 from dynamic_penalty.train.utils import *
 import re
 import wandb
-
 
 def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[float]:
     """Reward function that checks if the completion is correct."""
@@ -15,6 +14,13 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
     wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+    
+    # calculate the average number of each aha word across the responses
+    aha_words = ['wait', 'recheck', 'alternatively', 'retry', 'however']
+    cnt_dict = count_aha_words(responses, aha_words=aha_words)
+    for aha_word in aha_words:
+        wandb.log({f"train/cnt_'{aha_word}'": cnt_dict[aha_word]})
+    wandb.log({"train/cnt_all_aha_words": cnt_dict['cnt_all_aha_words']})
     return [2.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]
 
 
