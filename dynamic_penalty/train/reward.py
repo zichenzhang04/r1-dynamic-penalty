@@ -53,7 +53,7 @@ def soft_format_reward_func(completions, **kwargs) -> list[float]:
     """
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     responses = [completion[0]["content"] for completion in completions]
-    matches = [re.search(pattern, r) for r in responses]
+    matches = [re.search(pattern, r, flags=re.DOTALL) for r in responses]
     return [1.0 if match else -2.0 for match in matches]
 
 
