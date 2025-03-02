@@ -6,11 +6,6 @@ gl_slurm_scripts/
 test_cosine.py
 *.out*
 
-# Environment
-.env
-.env.*
-!.env.example
-
 # .sh scripts
 .sh
 .sh.*
@@ -153,6 +148,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+!.env.example
 
 # Spyder project settings
 .spyderproject
