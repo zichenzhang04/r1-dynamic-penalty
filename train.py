@@ -106,6 +106,7 @@ def train(args):
         reward_funcs = reward_funcs,
         args = training_args,
         train_dataset = dataset,
+        compute_metrics = custom_metrics,
     )
 
     trainer.train()

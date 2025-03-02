@@ -2,7 +2,10 @@
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
+from dynamic_penalty.train.metric import count_reasoning_words
+from dynamic_penalty.train.utils import zipngram_tokens
 import re
+import wandb
 
 
 def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[float]:
@@ -18,7 +21,12 @@ def int_reward_func(completions, **kwargs) -> list[float]:
     """Reward function that checks if the completion is an integer."""
     responses = [completion[0]['content'] for completion in completions]
     extracted_responses = [extract_xml_answer(r) for r in responses]
-    return [1.0 if r.isdigit() else -1.0 for r in extracted_responses]
+
+    # Log reasoning word count
+    nums_reasoning_words = [count_reasoning_words(r) for r in responses]
+    wandb.log({"reasoning_length": sum(nums_reasoning_words) / len(nums_reasoning_words)})
+
+    return [1.0 if r.isdigit() else -2.0 for r in extracted_responses]
 
 
 def strict_format_reward_func(completions, **kwargs) -> list[float]:
@@ -45,7 +53,7 @@ def soft_format_reward_func(completions, **kwargs) -> list[float]:
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     responses = [completion[0]["content"] for completion in completions]
     matches = [re.search(pattern, r) for r in responses]
-    return [1.0 if match else -1.0 for match in matches]
+    return [1.0 if match else -2.0 for match in matches]
 
 
 def count_xml(text) -> float:
@@ -105,18 +113,15 @@ def cosine_reward_func(
         repetition_ngram_size
     )
 
-    rewards = cos_reward.reward(
+    rewards, rep_penalties = cos_reward.reward(
         sequences=responses,
         gen_lengths=gen_lengths,
         scores=scores
     )
 
+    wandb.log({"repetition_penalty": sum(rep_penalties) / len(rep_penalties)})
+
     return rewards
-
-
-def zipngram_tokens(tokens: list[int], ngram_size: int):
-    tokens = tokens.lower().split()
-    return zip(*[tokens[i:] for i in range(ngram_size)])
 
 
 def repetition_penalty_reward_func(

@@ -53,6 +53,7 @@ class CosineScaledSparseReward:
         - Shorter solutions should be more risk averse (wrong penalized more than correct rewarded).
         """
         rewards = []
+        rep_penalties = []
 
         for seq, length, score in zip(sequences, gen_lengths, scores):
             if length + self.MAX_LEN_MARGIN >= self.max_len:
@@ -74,5 +75,6 @@ class CosineScaledSparseReward:
             r = min_value + 0.5 * (max_value - min_value) * (1.0 + cos_part)
             r += rep_penalty
             rewards.append(r)
+            rep_penalties.append(rep_penalty)
 
-        return rewards
+        return rewards, rep_penalties
