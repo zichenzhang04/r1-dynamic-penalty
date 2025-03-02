@@ -3,7 +3,7 @@
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
 from dynamic_penalty.train.metric import count_reasoning_words
-from dynamic_penalty.train.utils import zipngram_tokens
+from dynamic_penalty.train.utils import *
 import re
 import wandb
 
@@ -14,6 +14,7 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     q = prompts[0][-1]['content']
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
+    wandb.log({"training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
     return [2.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]
 
 
@@ -97,6 +98,7 @@ def cosine_reward_func(
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
+    wandb.log({"training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
 
     scores = [1.0 if er == ans else 0.0 for er, ans in zip(extracted_responses, answer)]
     # Use number of tokens instead of naive number of words
