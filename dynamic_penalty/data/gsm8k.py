@@ -4,11 +4,12 @@ from datasets import load_dataset, Dataset
 SYSTEM_PROMPT = """
 Respond in the following format:
 <reasoning>
-...
+Reasoning process here
 </reasoning>
 <answer>
-...
+An integer
 </answer>
+Only output the numerical values (integers) of final answers between <answer> tags
 """
 
 XML_COT_FORMAT = """\
