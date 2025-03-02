@@ -6,6 +6,16 @@ gl_slurm_scripts/
 test_cosine.py
 *.out*
 
+# Environment
+.env
+.env.*
+!.env.example
+
+# .sh scripts
+.sh
+.sh.*
+!.sh.example
+
 # Byte-compiled / optimized / DLL files
 *__pycache__*
 *.py[cod]
