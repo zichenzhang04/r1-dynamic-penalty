@@ -51,7 +51,7 @@ def train(args):
     )
 
     reward_funcs = []
-    if args.reward_type == "normal":
+    if args.reward_type == "normal": # Baseline
         reward_funcs = [
             xmlcount_reward_func,
             soft_format_reward_func,

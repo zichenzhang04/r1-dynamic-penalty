@@ -22,7 +22,12 @@ def int_reward_func(completions, **kwargs) -> list[float]:
 
 
 def strict_format_reward_func(completions, **kwargs) -> list[float]:
-    """Reward function that checks if the completion has a specific format."""
+    """Reward function that checks if the completion has a specific format.
+    The string must start (^) and end ($) exactly with the expected format.
+    Each <reasoning> and <answer> section must be on its own line.
+    Newlines (\n) are explicitly required between tags.
+    Any deviation (e.g., missing newlines, extra spaces) will result in a 0.0 reward.
+    """
     pattern = r"^<reasoning>\n.*?\n</reasoning>\n<answer>\n.*?\n</answer>\n$"
     responses = [completion[0]["content"] for completion in completions]
     matches = [re.match(pattern, r) for r in responses]
@@ -30,7 +35,13 @@ def strict_format_reward_func(completions, **kwargs) -> list[float]:
 
 
 def soft_format_reward_func(completions, **kwargs) -> list[float]:
-    """Reward function that checks if the completion has a specific format."""
+    """Reward function that checks if the completion has a specific format.
+    The <reasoning> and <answer> sections must be present.
+    There can be arbitrary text in between (.*?).
+    The tags don’t need to be on separate lines.
+    Any amount of whitespace (\s*) is allowed between the </reasoning> and <answer>.
+    Minor formatting variations (e.g., extra spaces or missing newlines) will still get a 0.5 reward.
+    """
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     responses = [completion[0]["content"] for completion in completions]
     matches = [re.match(pattern, r) for r in responses]
@@ -38,7 +49,6 @@ def soft_format_reward_func(completions, **kwargs) -> list[float]:
 
 
 def count_xml(text) -> float:
-    """Count the number of XML tags in the text."""
     count = 0.0
     if text.count("<reasoning>\n") == 1:
         count += 0.125
@@ -54,6 +64,7 @@ def count_xml(text) -> float:
 
 
 def xmlcount_reward_func(completions, **kwargs) -> list[float]:
+    """Format reward based on the number of XML tags."""
     contents = [completion[0]["content"] for completion in completions]
     return [count_xml(c) for c in contents]
 
