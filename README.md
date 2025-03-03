@@ -26,4 +26,5 @@ pip install --force-reinstall --no-deps --no-cache-dir git+https://github.com/un
 ```
 
 ## Documentations
-Google doc: https://docs.google.com/document/d/1artwHjWP9XIchUnj2lUcb-06TveEp_3qNH-j8gaT_fc/edit?tab=t.0
+- Google Doc: [link](https://docs.google.com/document/d/1artwHjWP9XIchUnj2lUcb-06TveEp_3qNH-j8gaT_fc/edit?tab=t.0)
+- Weights & Biases: [link](https://wandb.ai/zhangzzc-university-of-michigan/projects)
