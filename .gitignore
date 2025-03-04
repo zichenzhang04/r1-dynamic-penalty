@@ -8,9 +8,9 @@ test_cosine.py
 *_wln*
 
 # .sh scripts
-.sh
-.sh.*
-!.sh.example
+*.sh
+*.sh.*
+!*.sh.example
 
 # Byte-compiled / optimized / DLL files
 *__pycache__*
