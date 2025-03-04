@@ -101,11 +101,16 @@ def cosine_reward_func(
     **kwargs
 ) -> list[float]:
     responses = [completion[0]['content'] for completion in completions]
-    log_aha_words(responses)
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+        # log training/validation acc and aha-words here
+    if kwargs["is_validating"]:
+        wandb.log({"train/validation_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})        
+    else:
+        wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+        
+    log_aha_words(responses)
 
     scores = [1.0 if er == ans else 0.0 for er, ans in zip(extracted_responses, answer)]
     # Use number of tokens instead of naive number of words
