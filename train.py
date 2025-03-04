@@ -5,7 +5,9 @@ import re
 import wandb
 import os
 
+from dynamic_penalty.train.utils import customize_trainer
 from dynamic_penalty.data.gsm8k import get_gsm8k_questions
+from dynamic_penalty.data.math500 import get_math500_questions
 from dynamic_penalty.train.reward import *
 
 
@@ -24,6 +26,7 @@ def train(args):
     PatchFastRL("GRPO", FastLanguageModel)
 
     dataset = get_gsm8k_questions()
+    dataset_eval = get_math500_questions()
 
     max_seq_length = 1024 # Can increase for longer reasoning traces
     lora_rank = 64 # Larger rank = smarter, but slower
@@ -93,6 +96,11 @@ def train(args):
         max_steps = 500, # Adjust this
         save_steps = 150, # Save checkpoint #150, #300, #450
         max_grad_norm = 0.1,
+        # eval
+        eval_strategy = "steps",
+        eval_steps = 25,
+        per_device_eval_batch_size = 32,
+        # report
         report_to = "wandb", # Use Weights & Biases
         output_dir = (
             f"/scratch/cse598s012w25_class_root/cse598s012w25_class/"
@@ -106,8 +114,12 @@ def train(args):
         reward_funcs = reward_funcs,
         args = training_args,
         train_dataset = dataset,
+        eval_dataset= dataset_eval
         # compute_metrics = custom_metrics,
     )
+
+    # do some customizations on trainer
+    customize_trainer(trainer)
 
     trainer.train()
 

@@ -1,3 +1,5 @@
+
+
 """All reward functions."""
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
@@ -13,8 +15,14 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     q = prompts[0][-1]['content']
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+    # log training/validation acc and aha-words here
+    if kwargs["is_validating"]:
+        wandb.log({"train/validation_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})        
+    else:
+        wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
+        
     log_aha_words(responses)
+
     return [2.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]
 
 
