@@ -104,7 +104,7 @@ def cosine_reward_func(
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-        # log training/validation acc and aha-words here
+    # log training/validation acc and aha-words here
     if kwargs["is_validating"]:
         wandb.log({"train/validation_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})        
     else:
