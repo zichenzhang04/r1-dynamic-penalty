@@ -27,7 +27,7 @@ def extract_xml_answer(text: str) -> str:
     return answer.strip()
 
 # uncomment middle messages for 1-shot prompting
-def get_math500_questions(subset='int_only', limit=128) -> Dataset:
+def get_math500_questions_eval(subset='int_only', limit=256) -> Dataset:
     """
     Params:
     subset: if set to 'all', then all the 500 entries are sampled; 

@@ -17,7 +17,7 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
     # log training/validation acc and aha-words here
     if kwargs["is_validating"]:
-        wandb.log({"train/validation_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})        
+        wandb.log({"train/validation_accuracy": sum([1.0 if math_equal(r, a) else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})        
     else:
         wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
         

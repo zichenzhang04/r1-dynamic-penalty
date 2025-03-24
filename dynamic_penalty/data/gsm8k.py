@@ -43,3 +43,20 @@ def get_gsm8k_questions(split = "train") -> Dataset:
         'answer': extract_hash_answer(x['answer'])
     }) # type: ignore
     return data # type: ignore
+
+
+def get_gsm8k_questions_eval(split = "test", limit=256) -> Dataset:
+    # Auto-saved to ~/.cache/huggingface/datasets/
+    data = load_dataset('openai/gsm8k', 'main')[split] # type: ignore
+
+    if len(data) > limit:
+        data = data.select(range(limit))
+
+    data = data.map(lambda x: { # type: ignore
+        'prompt': [
+            {'role': 'system', 'content': SYSTEM_PROMPT},
+            {'role': 'user', 'content': x['question']}
+        ],
+        'answer': extract_hash_answer(x['answer'])
+    }) # type: ignore
+    return data # type: ignore

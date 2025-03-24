@@ -25,6 +25,11 @@ There's some bug in the stable version of unsloth-zoo, making it fail to work on
 pip install --force-reinstall --no-deps --no-cache-dir git+https://github.com/unslothai/unsloth-zoo.git
 ```
 
+For better evaluation, also install `symeval`:
+```Shell
+pip install "git+https://github.com/tongyx361/symeval.git"
+```
+
 ## Documentations
 - Google Doc: [link](https://docs.google.com/document/d/1artwHjWP9XIchUnj2lUcb-06TveEp_3qNH-j8gaT_fc/edit?tab=t.0)
 - Weights & Biases: [link](https://wandb.ai/zhangzzc-university-of-michigan/projects)

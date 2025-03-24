@@ -6,8 +6,8 @@ import wandb
 import os
 
 from dynamic_penalty.train.utils import customize_trainer
-from dynamic_penalty.data.gsm8k import get_gsm8k_questions
-from dynamic_penalty.data.math500 import get_math500_questions
+from dynamic_penalty.data.gsm8k import get_gsm8k_questions, get_gsm8k_questions_eval
+from dynamic_penalty.data.math500 import get_math500_questions_eval
 from dynamic_penalty.train.reward import *
 
 
@@ -26,7 +26,14 @@ def train(args):
     PatchFastRL("GRPO", FastLanguageModel)
 
     dataset = get_gsm8k_questions()
-    dataset_eval = get_math500_questions()
+
+    if args.eval_dataset == 'math500':
+        dataset_eval = get_math500_questions_eval()
+    elif args.eval_dataset == "gsm8k":
+        dataset_eval = get_gsm8k_questions_eval()
+    else:
+        print(f"{args.eval_dataset_type} not implemented for evaluation")
+        return
 
     max_seq_length = 1024 # Can increase for longer reasoning traces
     lora_rank = 64 # Larger rank = smarter, but slower
@@ -133,9 +140,11 @@ def train(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
+    parser.add_argument("--train_dataset", default="gsm8k", choices=["gsm8k"])
+    parser.add_argument("--eval_dataset", default="math500", choices=["math500", "gsm8k", "theoremqa"])
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     parser.add_argument("--run_name", type=str, default="normal_reward")
-    parser.add_argument("--reward_type", type=str, default="normal")
+    parser.add_argument("--reward_type", type=str, default="normal", choices=["normal", "cosine"])
     parser.add_argument("--team_name", type=str, default="zhangzzc-university-of-michigan")  # Add team_name argument
     args = parser.parse_args()
     train(args)
