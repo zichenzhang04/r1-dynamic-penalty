@@ -8,9 +8,9 @@ test_cosine.py
 *_wln*
 
 # .sh scripts
-.sh
-.sh.*
-!.sh.example
+*.sh
+*.sh.*
+!*.sh.example
 
 # Byte-compiled / optimized / DLL files
 *__pycache__*
@@ -150,6 +150,7 @@ ENV/
 env.bak/
 venv.bak/
 !.env.example
+.envrc
 
 # Spyder project settings
 .spyderproject
