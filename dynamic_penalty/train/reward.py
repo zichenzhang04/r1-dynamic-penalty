@@ -118,7 +118,9 @@ def cosine_reward_func(
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
+    
     # log training/validation acc and aha-words here
+    global eval_stats
     if kwargs["is_validating"]:
         # e.g. group_size=8. eval_batch_size=32, len(eval_dataset)=64, then each time len(prompts)==32, 
         # while prompts[0]~prompts[7], prompts[8]~prompts[15], prompts[16]~prompts[23], prompts[24]~prompts[31] are the same, respectively
