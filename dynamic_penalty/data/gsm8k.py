@@ -45,9 +45,9 @@ def get_gsm8k_questions(split = "train") -> Dataset:
     return data # type: ignore
 
 
-def get_gsm8k_questions_eval(split = "test", limit=256) -> Dataset:
+def get_gsm8k_questions_eval(limit=64) -> Dataset:
     # Auto-saved to ~/.cache/huggingface/datasets/
-    data = load_dataset('openai/gsm8k', 'main')[split] # type: ignore
+    data = load_dataset('openai/gsm8k', 'main')["test"] # type: ignore
 
     if len(data) > limit:
         data = data.select(range(limit))

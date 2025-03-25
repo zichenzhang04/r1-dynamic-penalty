@@ -6,6 +6,7 @@ gl_slurm_scripts/
 test_cosine.py
 *.out*
 *_wln*
+.vscode/
 
 # .sh scripts
 *.sh

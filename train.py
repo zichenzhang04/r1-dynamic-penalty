@@ -28,14 +28,14 @@ def train(args):
     dataset = get_gsm8k_questions()
 
     if args.eval_dataset == 'math500':
-        dataset_eval = get_math500_questions_eval()
+        dataset_eval = get_math500_questions_eval(limit=args.eval_limit)
     elif args.eval_dataset == "gsm8k":
-        dataset_eval = get_gsm8k_questions_eval()
+        dataset_eval = get_gsm8k_questions_eval(limit=args.eval_limit)
     else:
         print(f"{args.eval_dataset_type} not implemented for evaluation")
         return
 
-    max_seq_length = 1024 # Can increase for longer reasoning traces
+    max_seq_length = 1500 # Can increase for longer reasoning traces
     lora_rank = 64 # Larger rank = smarter, but slower
 
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -100,13 +100,13 @@ def train(args):
         max_prompt_length = 1024, # original: 256
         max_completion_length = 1024, # original: 200
         # num_train_epochs = 1, # Set to 1 for a full training run
-        max_steps = 500, # Adjust this
-        save_steps = 150, # Save checkpoint #150, #300, #450
+        max_steps = args.train_steps, # Adjust this
+        save_steps = args.ckpt_save_steps, # Save checkpoint #150, #300, #450
         max_grad_norm = 0.1,
         # eval
         eval_strategy = "steps",
-        eval_steps = 25,
-        per_device_eval_batch_size = 32,
+        eval_steps = args.eval_steps,
+        per_device_eval_batch_size = args.eval_batchsize,
         # report
         report_to = "wandb", # Use Weights & Biases
         output_dir = (
@@ -139,12 +139,25 @@ def train(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    # model
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-3B-Instruct")
+    # train/val dataset
     parser.add_argument("--train_dataset", default="gsm8k", choices=["gsm8k"])
-    parser.add_argument("--eval_dataset", default="math500", choices=["math500", "gsm8k", "theoremqa"])
+    parser.add_argument("--eval_dataset", default="gsm8k", choices=["math500", "gsm8k", "theoremqa"])
+    # train hyperparams
+    # TODO: other training hyperparams are hardcoded in the code
+    parser.add_argument("--train_steps", type=int, default=500)
+    parser.add_argument("--ckpt_save_steps", type=int, default=150)
+    # eval hyperparams
+    parser.add_argument("--eval_limit", type=int, default=256, help="limit the number of eval samples to speed up")
+    parser.add_argument("--eval_steps", type=int, default=25, help="do validation every `eval_steps` steps")
+    parser.add_argument("--eval_batchsize", type=int, default=32)
+    # reward type
+    parser.add_argument("--reward_type", type=str, default="normal", choices=["normal", "cosine"])
+    # wandb logging
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     parser.add_argument("--run_name", type=str, default="normal_reward")
-    parser.add_argument("--reward_type", type=str, default="normal", choices=["normal", "cosine"])
     parser.add_argument("--team_name", type=str, default="zhangzzc-university-of-michigan")  # Add team_name argument
+
     args = parser.parse_args()
     train(args)
