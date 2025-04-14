@@ -4,8 +4,14 @@
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
+<<<<<<< HEAD
 from dynamic_penalty.train.metric import count_reasoning_words, count_aha_words, log_aha_words
 from dynamic_penalty.train.utils import zipngram_tokens, average_nonzero, math_equal
+=======
+from dynamic_penalty.train.dynamic_reward import DynamicWeightedReward
+from dynamic_penalty.train.metric import *
+from dynamic_penalty.train.utils import *
+>>>>>>> ef7738a (add dynamic reward)
 import re
 import wandb
 
@@ -96,6 +102,65 @@ def xmlcount_reward_func(completions, **kwargs) -> list[float]:
     """Format reward based on the number of XML tags."""
     contents = [completion[0]["content"] for completion in completions]
     return [count_xml(c) for c in contents]
+
+
+def dynamic_reward_func(
+    prompts,
+    completions,
+    answer,
+    tokenizer,
+    # Reward hyperparameters
+    min_value_wrong: float = -10.0,
+    max_value_wrong: float = 0.0,
+    min_value_correct: float = 2.0,
+    max_value_correct: float = 1.0,
+    max_len: int = 1024,
+    exceed_length: float = -10.0,
+    repetition_max_penalty: float = -1.0,
+    repetition_ngram_size: int = 20,
+    alpha: float = 2.0,
+    beta: float = -1.0,
+    **kwargs
+) -> list[float]:
+    """
+    Dynamic reward function that balances cosine reward and repetition penalty
+    with a dynamically adjusted weight.
+    """
+    responses = [completion[0]['content'] for completion in completions]
+    log_aha_words(responses)
+
+    extracted_responses = [extract_xml_answer(r) for r in responses]
+    q = prompts[0][-1]['content']
+    print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}",
+          f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
+    wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(
+        extracted_responses, answer)]) / len(extracted_responses)})
+
+    scores = [1.0 if er == ans else 0.0 for er,
+              ans in zip(extracted_responses, answer)]
+    # Use number of tokens instead of naive number of words
+    gen_lengths = [len(tokenizer.tokenize(r)) for r in responses]
+
+    reward_model = DynamicWeightedReward(
+        min_value_wrong,
+        max_value_wrong,
+        min_value_correct,
+        max_value_correct,
+        max_len,
+        exceed_length,
+        repetition_max_penalty,
+        repetition_ngram_size,
+        alpha,
+        beta
+    )
+
+    rewards = reward_model.reward(
+        sequences=responses,
+        gen_lengths=gen_lengths,
+        scores=scores
+    )
+
+    return rewards
 
 
 def cosine_reward_func(

@@ -78,6 +78,17 @@ def train(args):
                 prompts, completions, answer, tokenizer=tokenizer, **kwargs
             ), # Replace correctness_reward_func
         ]
+    elif args.reward_type == "dynamic":
+        reward_funcs = [
+            xmlcount_reward_func,
+            soft_format_reward_func,
+            strict_format_reward_func,
+            int_reward_func,
+            lambda prompts, completions, answer, **kwargs: dynamic_reward_func(
+                prompts, completions, answer, tokenizer=tokenizer,
+                alpha=args.alpha, beta=args.beta, **kwargs
+            ), # Dynamic reward function
+        ]
     else:
         print(f"Invalid reward type: {args.reward_type}")
         return
@@ -158,6 +169,12 @@ if __name__ == "__main__":
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     parser.add_argument("--run_name", type=str, default="normal_reward")
     parser.add_argument("--team_name", type=str, default="zhangzzc-university-of-michigan")  # Add team_name argument
-
+    parser.add_argument("--reward_type", type=str, default="normal",
+                       choices=["normal", "cosine", "dynamic"],
+                       help="Reward type: normal, cosine, or dynamic")
+    parser.add_argument("--alpha", type=float, default=2.0,
+                       help="Alpha parameter for dynamic reward function")
+    parser.add_argument("--beta", type=float, default=-1.0,
+                       help="Beta parameter for dynamic reward function")
     args = parser.parse_args()
     train(args)
