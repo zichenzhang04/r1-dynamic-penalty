@@ -4,14 +4,9 @@
 
 from dynamic_penalty.data.gsm8k import extract_xml_answer
 from dynamic_penalty.train.cosine import CosineScaledSparseReward
-<<<<<<< HEAD
-from dynamic_penalty.train.metric import count_reasoning_words, count_aha_words, log_aha_words
-from dynamic_penalty.train.utils import zipngram_tokens, average_nonzero, math_equal
-=======
 from dynamic_penalty.train.dynamic_reward import DynamicWeightedReward
 from dynamic_penalty.train.metric import *
 from dynamic_penalty.train.utils import *
->>>>>>> ef7738a (add dynamic reward)
 import re
 import wandb
 
@@ -23,11 +18,11 @@ def correctness_reward_func(prompts, completions, answer, **kwargs) -> list[floa
     q = prompts[0][-1]['content']
     extracted_responses = [extract_xml_answer(r) for r in responses]
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    
+
     # log training/validation acc and aha-words here
     global eval_stats
     if kwargs["is_validating"]:
-        # e.g. group_size=8. eval_batch_size=32, len(eval_dataset)=64, then each time len(prompts)==32, 
+        # e.g. group_size=8. eval_batch_size=32, len(eval_dataset)=64, then each time len(prompts)==32,
         # while prompts[0]~prompts[7], prompts[8]~prompts[15], prompts[16]~prompts[23], prompts[24]~prompts[31] are the same, respectively
         # that is: each time we have 4 distinct prompts
         # and we need 16 iterations to traverse the eval set (16 * 4 = 64)
@@ -183,11 +178,11 @@ def cosine_reward_func(
     extracted_responses = [extract_xml_answer(r) for r in responses]
     q = prompts[0][-1]['content']
     print('-'*20, f"Question:\n{q}", f"\nAnswer:\n{answer[0]}", f"\nResponse:\n{responses[0]}", f"\nExtracted:\n{extracted_responses[0]}")
-    
+
     # log training/validation acc and aha-words here
     global eval_stats
     if kwargs["is_validating"]:
-        # e.g. group_size=8. eval_batch_size=32, len(eval_dataset)=64, then each time len(prompts)==32, 
+        # e.g. group_size=8. eval_batch_size=32, len(eval_dataset)=64, then each time len(prompts)==32,
         # while prompts[0]~prompts[7], prompts[8]~prompts[15], prompts[16]~prompts[23], prompts[24]~prompts[31] are the same, respectively
         # that is: each time we have 4 distinct prompts
         # and we need 16 iterations to traverse the eval set (16 * 4 = 64)
@@ -200,7 +195,7 @@ def cosine_reward_func(
             wandb.log({"train/validation_accuracy": eval_acc})
             print(eval_acc)
         wandb.log({"train/training_accuracy": sum([1.0 if r == a else 0.0 for r, a in zip(extracted_responses, answer)]) / len(extracted_responses)})
-        
+
     log_aha_words(responses)
 
     scores = [1.0 if er == ans else 0.0 for er, ans in zip(extracted_responses, answer)]
