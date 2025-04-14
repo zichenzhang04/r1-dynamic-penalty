@@ -97,6 +97,7 @@ class DynamicWeightedReward:
         # Process each sequence
         for i, (seq, cosine_reward) in enumerate(zip(sequences, cosine_rewards)):
             # Calculate repetition frequency
+            print(sequences)
             rep_freq = self.calculate_repetition_frequency(seq)
             rep_frequencies.append(rep_freq)
 

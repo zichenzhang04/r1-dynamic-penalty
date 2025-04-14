@@ -164,14 +164,12 @@ if __name__ == "__main__":
     parser.add_argument("--eval_steps", type=int, default=25, help="do validation every `eval_steps` steps")
     parser.add_argument("--eval_batchsize", type=int, default=32)
     # reward type
-    parser.add_argument("--reward_type", type=str, default="normal", choices=["normal", "cosine"])
+    parser.add_argument("--reward_type", type=str, default="normal", choices=["normal", "cosine", "dynamic"], help="Reward type: normal, cosine, or dynamic")
     # wandb logging
     parser.add_argument("--project_name", type=str, default="dyreward_gsm8k_Qwen2-5-3B-Instruct")
     parser.add_argument("--run_name", type=str, default="normal_reward")
     parser.add_argument("--team_name", type=str, default="zhangzzc-university-of-michigan")  # Add team_name argument
-    parser.add_argument("--reward_type", type=str, default="normal",
-                       choices=["normal", "cosine", "dynamic"],
-                       help="Reward type: normal, cosine, or dynamic")
+
     parser.add_argument("--alpha", type=float, default=2.0,
                        help="Alpha parameter for dynamic reward function")
     parser.add_argument("--beta", type=float, default=-1.0,
