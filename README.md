@@ -1,5 +1,7 @@
 # Dynamic Reward: Stabilizing Long Chain-of-Thought Reinforcement Learning
 
+Paper: [Link](https://www.zichenz.me/project/dynamic_reward/dynamic_reward.pdf)
+
 ## Run the Project
 
 ### Initialize the Environment
@@ -29,7 +31,3 @@ For better evaluation, also install `symeval`:
 ```Shell
 pip install "git+https://github.com/tongyx361/symeval.git"
 ```
-
-## Documentations
-- Google Doc: [link](https://docs.google.com/document/d/1artwHjWP9XIchUnj2lUcb-06TveEp_3qNH-j8gaT_fc/edit?tab=t.0)
-- Weights & Biases: [link](https://wandb.ai/zhangzzc-university-of-michigan/projects)
